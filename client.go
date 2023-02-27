@@ -10,7 +10,6 @@ import (
 	"strings"
 
 	"github.com/purwandi/kubelogin/prompt"
-	"github.com/sirupsen/logrus"
 )
 
 type Client struct {
@@ -60,7 +59,7 @@ func (c *Client) Run() {
 
 	res, err := HttpPost(context.Background(), c.Server, body)
 	if err != nil {
-		fmt.Println(err)
+		fmt.Println(err.Error())
 	}
 	defer res.Body.Close()
 
@@ -71,12 +70,12 @@ func (c *Client) Run() {
 
 	content, err := io.ReadAll(res.Body)
 	if err != nil {
-		fmt.Println(err)
+		fmt.Println(err.Error())
 		return
 	}
 
 	if err := json.Unmarshal(content, &clr); err != nil {
-		logrus.Error(err)
+		fmt.Println(err.Error())
 		return
 	}
 

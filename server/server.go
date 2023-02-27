@@ -66,7 +66,7 @@ func (s *Server) Run() {
 		}
 
 		if err != nil && err != http.ErrServerClosed {
-			s.echo.Logger.Fatal("shutting down server")
+			s.echo.Logger.Fatal(err.Error())
 		}
 	}()
 
