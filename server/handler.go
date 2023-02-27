@@ -6,7 +6,6 @@ import (
 	"net/http"
 
 	"github.com/labstack/echo/v4"
-	"github.com/sirupsen/logrus"
 )
 
 type Handler struct {
@@ -48,9 +47,8 @@ func (h *Handler) Authenticate(c echo.Context) error {
 
 	res, err := RequestToken(fmt.Sprintf("%s/protocol/openid-connect/token", h.keycloak.OIDCIssuerUrl), req)
 	if err != nil {
-		logrus.Error(err)
 		return c.JSON(http.StatusInternalServerError, map[string]interface{}{
-			"error": "internal server error",
+			"error": err.Error(),
 		})
 	}
 

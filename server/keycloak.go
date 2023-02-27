@@ -3,6 +3,8 @@ package server
 import (
 	"context"
 	"encoding/json"
+	"errors"
+	"fmt"
 	"io"
 	"net/url"
 	"strings"
@@ -61,17 +63,24 @@ func RequestToken(uri string, k KeycloakRequest) (KeycloakResponse, error) {
 	body := strings.NewReader(k.ToFormData().Encode())
 	res, err := kubelogin.HttpPost(context.Background(), uri, body)
 	if err != nil {
-		return keyRes, err
+		fmt.Println(err.Error())
+		return keyRes, errors.New("unable to reach out endpoint")
 	}
 	defer res.Body.Close()
 
+	if res.StatusCode >= 400 {
+		return keyRes, errors.New("invalid credentials")
+	}
+
 	content, err := io.ReadAll(res.Body)
 	if err != nil {
-		return keyRes, err
+		fmt.Println(err.Error())
+		return keyRes, errors.New("unable to read message body")
 	}
 
 	if err := json.Unmarshal(content, &keyRes); err != nil {
-		return keyRes, err
+		fmt.Println(err.Error())
+		return keyRes, errors.New("unable decode message body")
 	}
 
 	return keyRes, err

@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"io"
 	"net/url"
-	"os"
 	"os/exec"
 	"strings"
 
@@ -61,20 +60,24 @@ func (c *Client) Run() {
 
 	res, err := HttpPost(context.Background(), c.Server, body)
 	if err != nil {
-		logrus.Error(err)
-		os.Exit(1)
+		fmt.Println(err)
 	}
 	defer res.Body.Close()
 
+	if res.StatusCode >= 400 {
+		fmt.Println("invalid credential")
+		return
+	}
+
 	content, err := io.ReadAll(res.Body)
 	if err != nil {
-		logrus.Error(err)
-		os.Exit(1)
+		fmt.Println(err)
+		return
 	}
 
 	if err := json.Unmarshal(content, &clr); err != nil {
 		logrus.Error(err)
-		os.Exit(1)
+		return
 	}
 
 	// setter kubectl

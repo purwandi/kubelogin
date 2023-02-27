@@ -1,6 +1,8 @@
 package main
 
 import (
+	"fmt"
+
 	"github.com/purwandi/kubelogin"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
@@ -16,7 +18,8 @@ var (
 
 func main() {
 	rootCommand := &cobra.Command{
-		Use: "",
+		Use:           "",
+		SilenceErrors: true,
 		Short: `
 Examples:
   # Log in interactively
@@ -28,7 +31,7 @@ Examples:
   # Log in to the given server with the given credentials (will not prompt interactively)
   kubectl login localhost:8443 --username=myuser --password=mypass
 		`,
-		RunE: func(cmd *cobra.Command, args []string) error {
+		Run: func(cmd *cobra.Command, args []string) {
 			client := &kubelogin.Client{
 				Server:   server,
 				Username: username,
@@ -36,13 +39,11 @@ Examples:
 			}
 
 			if err := client.Validate(); err != nil {
-				return err
+				fmt.Println(err)
+			} else {
+				client.Run()
 			}
 
-			client.Run()
-			// log.Println(client.Server, " ", client.Username, " ", client.Password)
-
-			return nil
 		},
 	}
 
