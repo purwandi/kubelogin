@@ -1,0 +1,23 @@
+before:
+  hooks:
+    - go mod tidy
+
+builds:
+  - id: kubectl-login
+    binary: kubectl-login
+    env:
+      - CGO_ENABLED=0
+    main: ./cmd/client
+    goos:
+      - linux
+      - windows
+      - darwin
+  - id: kubectl-oidc-server
+    binary: kubectl-oidc-server
+    env:
+      - CGO_ENABLED=0
+    main: ./cmd/server
+    goos:
+      - linux
+      - windows
+      - darwin
