@@ -25,10 +25,13 @@ func (c *Client) Validate() error {
 	}
 
 	if c.Username == "" {
+		fmt.Printf("Authentication required for %s (kubernetes)\n", c.Server)
 		c.Username = prompt.StringRequired("Username")
 	}
 
 	if c.Password == "" {
+		fmt.Printf("Authentication required for %s (kubernetes)\n", c.Server)
+		fmt.Printf("Username : %s\n", c.Username)
 		c.Password = prompt.Password("Password")
 	}
 
@@ -64,7 +67,7 @@ func (c *Client) Run() {
 	defer res.Body.Close()
 
 	if res.StatusCode >= 400 {
-		fmt.Println("invalid credential")
+		fmt.Println("invalid credential username or password")
 		return
 	}
 
@@ -85,4 +88,6 @@ func (c *Client) Run() {
 	exec.Command("kubectl", "config", "set-context", fmt.Sprintf("%s@%s", clr.Username, clr.GetHostname()), fmt.Sprintf("--cluster=%s", clr.GetHostname()), fmt.Sprintf("--user=%s", clr.Username)).Output()
 	exec.Command("kubectl", "config", "use-context", fmt.Sprintf("%s@%s", clr.Username, clr.GetHostname())).Output()
 
+	// welcome
+	fmt.Println("Login successful.")
 }
