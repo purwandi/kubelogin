@@ -34,6 +34,7 @@ type Server struct {
 func NewServer(cfg ServerConfig) *Server {
 	e := echo.New()
 	e.HideBanner = true
+	e.Use(middleware.RateLimiter(middleware.NewRateLimiterMemoryStore(100)))
 	e.Use(middleware.RequestID())
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
