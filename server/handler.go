@@ -59,6 +59,7 @@ func (h *Handler) Authenticate(c echo.Context) error {
 	return c.JSON(http.StatusOK, map[string]interface{}{
 		"username":      username,
 		"apiserver":     h.k8sHost,
+		"ca_data":       h.keycloak.KubeAPICaCert,
 		"id_token":      res.IDToken,
 		"refresh_token": res.RefreshToken,
 		"access_token":  res.AccessToken,

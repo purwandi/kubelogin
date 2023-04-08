@@ -15,6 +15,7 @@ type Config struct {
 	OIDCIssuerUrl    string
 	OIDCCLientID     string
 	OIDCClientSecret string
+	KubeAPICaCert    string `json:"kube_api_cacert"`
 }
 
 type KeycloakResponse struct {

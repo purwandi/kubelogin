@@ -85,7 +85,8 @@ func (c *Client) Run() {
 	}
 
 	// setter kubectl
-	exec.Command("kubectl", "config", "set-cluster", clr.GetHostname(), fmt.Sprintf("--server=%s", clr.ApiServer), "--insecure-skip-tls-verify").Output()
+	exec.Command("kubectl", "config", "set-cluster", clr.GetHostname(), fmt.Sprintf("--server=%s", clr.ApiServer)).Output()
+	exec.Command("kubectl", "config", "set", fmt.Sprintf("clusters.%s.certificate-authority-data", clr.GetHostname()), clr.ApiServerCaData).Output()
 	exec.Command("kubectl", "config", "set-credentials", clr.Username, fmt.Sprintf("--token=%s", clr.IDToken)).Output()
 	exec.Command("kubectl", "config", "set-context", fmt.Sprintf("%s@%s", clr.Username, clr.GetHostname()), fmt.Sprintf("--cluster=%s", clr.GetHostname()), fmt.Sprintf("--user=%s", clr.Username)).Output()
 	exec.Command("kubectl", "config", "use-context", fmt.Sprintf("%s@%s", clr.Username, clr.GetHostname())).Output()
