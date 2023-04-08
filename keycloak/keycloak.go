@@ -1,7 +1,6 @@
-package server
+package keycloak
 
 import (
-	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -11,6 +10,12 @@ import (
 
 	"github.com/purwandi/kubelogin"
 )
+
+type Config struct {
+	OIDCIssuerUrl    string
+	OIDCCLientID     string
+	OIDCClientSecret string
+}
 
 type KeycloakResponse struct {
 	IDToken      string `json:"id_token"`
@@ -54,14 +59,17 @@ func (k KeycloakRequest) ToFormData() url.Values {
 	return form
 }
 
-func RequestToken(uri string, k KeycloakRequest) (KeycloakResponse, error) {
+func KeycloakRequestToken(uri string, k KeycloakRequest) (KeycloakResponse, error) {
 	var (
 		keyRes KeycloakResponse
 		err    error
 	)
 
 	body := strings.NewReader(k.ToFormData().Encode())
-	res, err := kubelogin.HttpPost(context.Background(), uri, body)
+	opts := kubelogin.DefaultOptions()
+	opts.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+
+	res, err := kubelogin.HttpPost(opts, uri, body)
 	if err != nil {
 		fmt.Println(err.Error())
 		return keyRes, errors.New("unable to reach out endpoint")

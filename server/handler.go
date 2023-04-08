@@ -3,14 +3,18 @@ package server
 import (
 	"errors"
 	"fmt"
+	"io"
 	"net/http"
 
 	"github.com/labstack/echo/v4"
+	"github.com/purwandi/kubelogin/etcd"
+	"github.com/purwandi/kubelogin/keycloak"
 )
 
 type Handler struct {
 	k8sHost  string
-	keycloak KeycloakConfig
+	keycloak keycloak.Config
+	etcd     etcd.EtcdClient
 }
 
 func (h *Handler) Authenticate(c echo.Context) error {
@@ -35,7 +39,7 @@ func (h *Handler) Authenticate(c echo.Context) error {
 	}
 
 	// perform http request
-	req := KeycloakRequest{
+	req := keycloak.KeycloakRequest{
 		ResponseType: "id_token",
 		GrantType:    "password",
 		Scope:        "profile email openid groups",
@@ -45,7 +49,7 @@ func (h *Handler) Authenticate(c echo.Context) error {
 		Password:     password,
 	}
 
-	res, err := RequestToken(fmt.Sprintf("%s/protocol/openid-connect/token", h.keycloak.OIDCIssuerUrl), req)
+	res, err := keycloak.KeycloakRequestToken(fmt.Sprintf("%s/protocol/openid-connect/token", h.keycloak.OIDCIssuerUrl), req)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]interface{}{
 			"error": err.Error(),
@@ -63,4 +67,23 @@ func (h *Handler) Authenticate(c echo.Context) error {
 
 func (h *Handler) Ping(c echo.Context) error {
 	return c.String(http.StatusOK, ".")
+}
+
+func (h *Handler) EtcdMetrics(c echo.Context) error {
+	res, err := h.etcd.GetMetrics()
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]interface{}{
+			"error": err.Error(),
+		})
+	}
+	defer res.Body.Close()
+
+	content, err := io.ReadAll(res.Body)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]interface{}{
+			"error": err.Error(),
+		})
+	}
+
+	return c.HTMLBlob(http.StatusOK, content)
 }

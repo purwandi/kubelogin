@@ -10,20 +10,17 @@ import (
 
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
+	"github.com/purwandi/kubelogin/etcd"
+	"github.com/purwandi/kubelogin/keycloak"
 )
-
-type KeycloakConfig struct {
-	OIDCIssuerUrl    string
-	OIDCCLientID     string
-	OIDCClientSecret string
-}
 
 type ServerConfig struct {
 	Port                string
 	CertificateFile     string
 	CertiticateKeyFile  string
 	KubernetesApiServer string
-	Keycloak            KeycloakConfig
+	Keycloak            keycloak.Config
+	Etcd                etcd.EtcdClient
 }
 
 type Server struct {
@@ -42,9 +39,11 @@ func NewServer(cfg ServerConfig) *Server {
 	handler := Handler{
 		k8sHost:  cfg.KubernetesApiServer,
 		keycloak: cfg.Keycloak,
+		etcd:     cfg.Etcd,
 	}
 
 	e.POST("/", handler.Authenticate)
+	e.GET("/etcd/metrics", handler.EtcdMetrics)
 	e.GET("/ping", handler.Ping)
 
 	return &Server{

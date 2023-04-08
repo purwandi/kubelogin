@@ -1,7 +1,6 @@
 package kubelogin
 
 import (
-	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -21,7 +20,7 @@ type Client struct {
 
 func (c *Client) Validate() error {
 	if c.Server == "" {
-		c.Server = prompt.StringDefault("Server", "https://localhost:8443")
+		c.Server = prompt.StringDefault("Server", "https://localhost:6444")
 	}
 
 	if c.Username == "" {
@@ -60,7 +59,10 @@ func (c *Client) Run() {
 		body = strings.NewReader(c.ToForm().Encode())
 	)
 
-	res, err := HttpPost(context.Background(), c.Server, body)
+	opts := DefaultOptions()
+	opts.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+
+	res, err := HttpPost(opts, c.Server, body)
 	if err != nil {
 		fmt.Println(err.Error())
 	}

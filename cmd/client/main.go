@@ -26,10 +26,10 @@ Examples:
   kubectl login --username=myuser
 
   # Log in to the given server with insecure skip tls verify
-  kubectl login localhost:8443 --insecure-skip-tls-verify
+  kubectl login localhost:6444 --insecure-skip-tls-verify
 
   # Log in to the given server with the given credentials (will not prompt interactively)
-  kubectl login localhost:8443 --username=myuser --password=mypass
+  kubectl login localhost:6444 --username=myuser --password=mypass
 		`,
 		Run: func(cmd *cobra.Command, args []string) {
 			client := &kubelogin.Client{
