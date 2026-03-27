@@ -9,6 +9,7 @@ import (
 	"strings"
 
 	"github.com/purwandi/kubelogin"
+	"github.com/sirupsen/logrus"
 )
 
 type Config struct {
@@ -77,18 +78,19 @@ func KeycloakRequestToken(uri string, k KeycloakRequest) (KeycloakResponse, erro
 	}
 	defer res.Body.Close()
 
-	if res.StatusCode >= 400 {
-		return keyRes, errors.New("invalid credentials")
-	}
-
 	content, err := io.ReadAll(res.Body)
 	if err != nil {
-		fmt.Println(err.Error())
+		logrus.Error(err.Error())
 		return keyRes, errors.New("unable to read message body")
 	}
 
+	if res.StatusCode >= 400 {
+		logrus.Error(string(content))
+		return keyRes, errors.New("invalid credentials")
+	}
+
 	if err := json.Unmarshal(content, &keyRes); err != nil {
-		fmt.Println(err.Error())
+		logrus.Error(err.Error())
 		return keyRes, errors.New("unable decode message body")
 	}
 

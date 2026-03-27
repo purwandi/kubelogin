@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/purwandi/kubelogin/etcd"
 	"github.com/purwandi/kubelogin/keycloak"
 	"github.com/purwandi/kubelogin/server"
 	"github.com/sirupsen/logrus"
@@ -21,10 +20,6 @@ var (
 	oidcIssuerUrl           string
 	oidcClientId            string
 	oidcClientSecret        string
-	etcdEndpoint            string
-	etcdCacert              string
-	etcdTLSCert             string
-	etcdTLSKey              string
 )
 
 func main() {
@@ -48,12 +43,6 @@ func main() {
 					OIDCClientSecret: oidcClientSecret,
 					KubeAPICaCert:    base64.StdEncoding.EncodeToString(bytes),
 				},
-				Etcd: etcd.EtcdClient{
-					Endpoint: etcdEndpoint,
-					CaCert:   etcdCacert,
-					TlsCert:  etcdTLSCert,
-					TlsKey:   etcdTLSKey,
-				},
 			})
 
 			s.Run()
@@ -70,11 +59,6 @@ func main() {
 	cmd.PersistentFlags().StringVar(&oidcIssuerUrl, "oidc-issuer-url", "", "")
 	cmd.PersistentFlags().StringVar(&oidcClientId, "oidc-client-id", "", "")
 	cmd.PersistentFlags().StringVar(&oidcClientSecret, "oidc-client-secret", "", "")
-
-	cmd.PersistentFlags().StringVar(&etcdEndpoint, "etcd-endpoint", "https://127.0.0.1:2379", "etcd gRPC endpoints")
-	cmd.PersistentFlags().StringVar(&etcdCacert, "etcd-cacert", "", "verify certificates of TLS-enabled secure servers using this CA bundle")
-	cmd.PersistentFlags().StringVar(&etcdTLSCert, "etcd-tlscert", "", "identify secure client using this TLS certificate file")
-	cmd.PersistentFlags().StringVar(&etcdTLSKey, "etcd-tlskey", "", "identify secure client using this TLS key file")
 
 	if err := cmd.Execute(); err != nil {
 		logrus.Error(err)

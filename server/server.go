@@ -43,7 +43,6 @@ func NewServer(cfg ServerConfig) *Server {
 	}
 
 	e.POST("/", handler.Authenticate)
-	e.GET("/etcd/metrics", handler.EtcdMetrics)
 	e.GET("/ping", handler.Ping)
 
 	return &Server{
